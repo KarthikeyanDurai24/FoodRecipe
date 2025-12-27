@@ -1,47 +1,36 @@
-import { View, Text, ScrollView, Image, StyleSheet } from "react-native";
-import React, { useState } from "react";
+import { View, Text, ScrollView, Image, StyleSheet } from "react-native"; 
+import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import Categories from "../components/categories";
 import FoodItems from "../components/recipes";
 
 export default function HomeScreen() {
+  const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState("Chicken");
+  const [foods, setFoods] = useState([]);
 
-  // Hardcoded categories
-  const [categories, setCategories] = useState([
-    { idCategory: "1", strCategory: "Beef", strCategoryThumb: "https://www.themealdb.com/images/category/beef.png" },
-    { idCategory: "2", strCategory: "Chicken", strCategoryThumb: "https://www.themealdb.com/images/category/chicken.png" },
-    { idCategory: "3", strCategory: "Dessert", strCategoryThumb: "https://www.themealdb.com/images/category/dessert.png" },
-    { idCategory: "4", strCategory: "Lamb", strCategoryThumb: "https://www.themealdb.com/images/category/lamb.png" },
-    { idCategory: "5", strCategory: "Miscellaneous", strCategoryThumb: "https://www.themealdb.com/images/category/miscellaneous.png" },
-    { idCategory: "6", strCategory: "Pasta", strCategoryThumb: "https://www.themealdb.com/images/category/pasta.png" },
-    { idCategory: "7", strCategory: "Pork", strCategoryThumb: "https://www.themealdb.com/images/category/pork.png" },
-    { idCategory: "8", strCategory: "Seafood", strCategoryThumb: "https://www.themealdb.com/images/category/seafood.png" },
-    { idCategory: "9", strCategory: "Side", strCategoryThumb: "https://www.themealdb.com/images/category/side.png" },
-    { idCategory: "10", strCategory: "Starter", strCategoryThumb: "https://www.themealdb.com/images/category/starter.png" },
-    { idCategory: "11", strCategory: "Vegan", strCategoryThumb: "https://www.themealdb.com/images/category/vegan.png" },
-    { idCategory: "12", strCategory: "Vegetarian", strCategoryThumb: "https://www.themealdb.com/images/category/vegetarian.png" },
-    { idCategory: "13", strCategory: "Breakfast", strCategoryThumb: "https://www.themealdb.com/images/category/breakfast.png" },
-    { idCategory: "14", strCategory: "Goat", strCategoryThumb: "https://images.unsplash.com/photo-1619711667542-c049700dd9e0?q=80&w=1888&auto=format&fit=crop" },
-  ]);
+  // Fetch categories from API
+  useEffect(() => {
+    fetch("https://www.themealdb.com/api/json/v1/1/categories.php")
+      .then(res => res.json())
+      .then(data => setCategories(data.categories))
+      .catch(err => console.error(err));
+  }, []);
 
-  // All food items
-  const [allFood, setAllFood] = useState([
-    // ... all your food items as in your current code ...
-  ]);
+  // Fetch foods whenever category changes
+  useEffect(() => {
+    if (activeCategory) {
+      fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${activeCategory}`)
+        .then(res => res.json())
+        .then(data => setFoods(data.meals))
+        .catch(err => console.error(err));
+    }
+  }, [activeCategory]);
 
   const handleChangeCategory = (category) => {
     setActiveCategory(category);
   };
-
-  // Filter foods by selected category
-  const filteredfoods = allFood.filter(
-    (food) => food.category === activeCategory
-  );
 
   return (
     <View style={styles.container}>
@@ -73,13 +62,13 @@ export default function HomeScreen() {
           <Categories
             categories={categories}
             activeCategory={activeCategory}
-            onCategoryPress={handleChangeCategory}
+            handleChangeCategory={handleChangeCategory} // pass correct prop name
           />
         </View>
 
         {/* Food Items */}
         <View testID="foodList">
-          <FoodItems foods={filteredfoods} />
+          <FoodItems foods={foods} />
         </View>
       </ScrollView>
     </View>
@@ -87,14 +76,8 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  scrollContainer: {
-    paddingBottom: 50,
-    paddingTop: hp(14),
-  },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  scrollContainer: { paddingBottom: 50, paddingTop: hp(14) },
   headerContainer: {
     marginHorizontal: wp(4),
     flexDirection: "row",
@@ -103,10 +86,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
     marginTop: hp(-8.5),
   },
-  avatar: {
-    height: hp(5),
-    width: hp(5.5),
-  },
+  avatar: { height: hp(5), width: hp(5.5) },
   greetingText: {
     fontSize: hp(1.7),
     color: "#52525B",
@@ -117,21 +97,8 @@ const styles = StyleSheet.create({
     borderRadius: 9999,
     textAlign: "center",
   },
-  titleContainer: {
-    marginHorizontal: wp(4),
-    marginBottom: hp(2),
-  },
-  title: {
-    fontSize: hp(3.8),
-    fontWeight: "600",
-    color: "#52525B",
-  },
-  subtitle: {
-    fontSize: hp(3.8),
-    fontWeight: "600",
-    color: "#52525B",
-  },
-  highlight: {
-    color: "#F59E0B",
-  },
+  titleContainer: { marginHorizontal: wp(4), marginBottom: hp(2) },
+  title: { fontSize: hp(3.8), fontWeight: "600", color: "#52525B" },
+  subtitle: { fontSize: hp(3.8), fontWeight: "600", color: "#52525B" },
+  highlight: { color: "#F59E0B" },
 });
