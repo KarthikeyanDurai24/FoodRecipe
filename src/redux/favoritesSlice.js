@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  favoriterecipes: [], // Stores favorite recipes
+  favoriterecipes: [],
 };
 
 const favoritesSlice = createSlice({
@@ -10,15 +10,18 @@ const favoritesSlice = createSlice({
   reducers: {
     toggleFavorite: (state, action) => {
       const recipe = action.payload;
-      const existingIndex = state.favoriterecipes.findIndex(
-        (fav) => fav.idMeal === recipe.idMeal // Use idMeal to uniquely identify recipes
+
+      const exists = state.favoriterecipes.find(
+        (item) => item.idMeal === recipe.idMeal
       );
 
-      if (existingIndex >= 0) {
-        // Recipe already exists, remove it
-        state.favoriterecipes.splice(existingIndex, 1);
+      if (exists) {
+        // ❌ Remove if already favorite
+        state.favoriterecipes = state.favoriterecipes.filter(
+          (item) => item.idMeal !== recipe.idMeal
+        );
       } else {
-        // Recipe does not exist, add it
+        // ✅ Add to favorites
         state.favoriterecipes.push(recipe);
       }
     },
