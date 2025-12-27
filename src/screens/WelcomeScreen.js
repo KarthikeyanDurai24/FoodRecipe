@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet } from "react-native"; 
 import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
@@ -15,39 +15,41 @@ export default function WelcomeScreen() {
   const navigation = useNavigation();
 
   useEffect(() => {
+    // Initialize padding
     ring1padding.value = 0;
     ring2padding.value = 0;
-    setTimeout(
-      () => (ring1padding.value = withSpring(ring1padding.value + hp(5))),
-      100
-    );
-    setTimeout(
-      () => (ring2padding.value = withSpring(ring2padding.value + hp(5.5))),
-      300
-    );
 
-    setTimeout(() => navigation.navigate("Home"), 2500);
+    // Animate rings with spring effect
+    setTimeout(() => {
+      ring1padding.value = withSpring(ring1padding.value + hp(5));
+    }, 100);
+
+    setTimeout(() => {
+      ring2padding.value = withSpring(ring2padding.value + hp(5.5));
+    }, 300);
+
+    // Navigate to Home screen after 2.5 seconds
+    const timer = setTimeout(() => navigation.navigate("Home"), 2500);
+
+    // Cleanup timer on unmount
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* logo image with rings */}
-      <Animated.View
-        style={[styles.ring, { padding: ring2padding }]}
-      >
-        <Animated.View
-          style={[styles.ring, { padding: ring1padding }]}
-        >
+      {/* Animated rings with logo */}
+      <Animated.View style={[styles.ring, { padding: ring2padding }]}>
+        <Animated.View style={[styles.ring, { padding: ring1padding }]}>
           <Image
-            source={{uri:'https://cdn.pixabay.com/photo/2024/08/29/02/47/italian-9005494_1280.png'}}
+            source={{ uri: 'https://cdn.pixabay.com/photo/2024/08/29/02/47/italian-9005494_1280.png' }}
             style={styles.logo}
           />
         </Animated.View>
       </Animated.View>
 
-      {/* title and punchline */}
+      {/* App title and subtitle */}
       <View style={styles.textContainer}>
         <Text style={styles.title}>Foodie</Text>
         <Text style={styles.subtitle}>your food recipe app</Text>
@@ -61,11 +63,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FBBF24", // amber-500
+    backgroundColor: "#FBBF24", // Amber
   },
   ring: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)", // white/20
-    borderRadius: 9999, // full rounded
+    backgroundColor: "rgba(255, 255, 255, 0.2)", // semi-transparent white
+    borderRadius: 9999, // fully rounded
   },
   logo: {
     width: hp(20),
@@ -78,13 +80,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: hp(7),
     fontWeight: "bold",
-    color: "#FFFFFF", // white
-    letterSpacing: 3, // tracking-widest
+    color: "#FFFFFF",
+    letterSpacing: 3,
   },
   subtitle: {
     fontSize: hp(2),
     fontWeight: "500",
-    color: "#FFFFFF", // white
-    letterSpacing: 3, // tracking-widest
+    color: "#FFFFFF",
+    letterSpacing: 3,
   },
 });
