@@ -1,7 +1,10 @@
-import { View,Text,TextInput,TouchableOpacity,Image,StyleSheet,} from "react-native";
-import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {widthPercentageToDP as wp,heightPercentageToDP as hp,} from "react-native-responsive-screen";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 export default function RecipesFormScreen({ route, navigation }) {
   const { recipeToEdit, recipeIndex, onrecipeEdited } = route.params || {};
@@ -11,8 +14,34 @@ export default function RecipesFormScreen({ route, navigation }) {
     recipeToEdit ? recipeToEdit.description : ""
   );
 
-  const saverecipe = async () => {
- 
+  const saveRecipe = async () => {
+    if (!title || !description || !image) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    try {
+      const storedRecipes = await AsyncStorage.getItem("recipes");
+      let recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+
+      const newRecipe = { title, image, description };
+
+      if (recipeToEdit && recipeIndex !== undefined) {
+        // Editing an existing recipe
+        recipes[recipeIndex] = newRecipe;
+        if (onrecipeEdited) onrecipeEdited(newRecipe, recipeIndex);
+      } else {
+        // Adding a new recipe
+        recipes.push(newRecipe);
+      }
+
+      await AsyncStorage.setItem("recipes", JSON.stringify(recipes));
+      Alert.alert("Success", "Recipe saved successfully!");
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error saving recipe:", error);
+      Alert.alert("Error", "Failed to save recipe");
+    }
   };
 
   return (
@@ -42,8 +71,8 @@ export default function RecipesFormScreen({ route, navigation }) {
         numberOfLines={4}
         style={[styles.input, { height: hp(20), textAlignVertical: "top" }]}
       />
-      <TouchableOpacity onPress={saverecipe} style={styles.saveButton}>
-        <Text style={styles.saveButtonText}>Save recipe</Text>
+      <TouchableOpacity onPress={saveRecipe} style={styles.saveButton}>
+        <Text style={styles.saveButtonText}>Save Recipe</Text>
       </TouchableOpacity>
     </View>
   );
@@ -53,32 +82,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: wp(4),
+    backgroundColor: "white",
   },
   input: {
-    marginTop: hp(4),
+    marginTop: hp(2),
     borderWidth: 1,
     borderColor: "#ddd",
-    padding: wp(.5),
-    marginVertical: hp(1),
+    padding: wp(2),
+    borderRadius: 5,
   },
   image: {
-    width: 300,
-    height:200,
-    margin: wp(2),
+    width: "100%",
+    height: hp(25),
+    marginVertical: hp(2),
+    borderRadius: 10,
   },
   imagePlaceholder: {
-    height: hp(20),
+    height: hp(25),
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: hp(1),
+    marginVertical: hp(2),
     borderWidth: 1,
     borderColor: "#ddd",
     textAlign: "center",
     padding: wp(2),
+    borderRadius: 10,
+    color: "#6B7280",
   },
   saveButton: {
     backgroundColor: "#4F75FF",
-    padding: wp(.5),
+    paddingVertical: hp(1.5),
     alignItems: "center",
     borderRadius: 5,
     marginTop: hp(2),
@@ -86,5 +119,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: hp(2),
   },
 });
