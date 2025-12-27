@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Image, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, Pressable, Image, StyleSheet, FlatList } from "react-native"; 
 import React from "react";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { useNavigation } from "@react-navigation/native";
@@ -6,8 +6,8 @@ import { useNavigation } from "@react-navigation/native";
 export default function Recipe({ categories, foods }) {
   const navigation = useNavigation();
 
-  const renderItem = ({ item, index }) => (
-    <ArticleCard item={item} index={index} navigation={navigation} />
+  const renderItem = ({ item }) => (
+    <ArticleCard item={item} navigation={navigation} />
   );
 
   return (
@@ -18,17 +18,18 @@ export default function Recipe({ categories, foods }) {
         renderItem={renderItem}
         keyExtractor={(item, index) => item.idMeal || index.toString()}
         contentContainerStyle={{ paddingBottom: hp(5) }}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
 }
 
-const ArticleCard = ({ item, index, navigation }) => {
+const ArticleCard = ({ item, navigation }) => {
   return (
     <Pressable
-      style={[styles.cardContainer, { paddingLeft: 20, paddingRight: 15 }]}
+      style={styles.cardContainer}
       testID="articleDisplay"
-      onPress={() => navigation.navigate("RecipeDetailScreen", item)}
+      onPress={() => navigation.navigate("RecipeDetail", item)}
     >
       {item.strMealThumb && (
         <Image source={{ uri: item.strMealThumb }} style={styles.articleImage} />
@@ -45,15 +46,6 @@ const styles = StyleSheet.create({
   container: {
     marginHorizontal: wp(4),
     marginTop: hp(2),
-  },
-  title: {
-    fontSize: hp(3),
-    fontWeight: "600",
-    color: "#52525B",
-    marginBottom: hp(1.5),
-  },
-  loading: {
-    marginTop: hp(20),
   },
   cardContainer: {
     justifyContent: "center",
@@ -84,8 +76,5 @@ const styles = StyleSheet.create({
   articleDescription: {
     fontSize: hp(1.6),
     color: "#6B7280",
-  },
-  row: {
-    justifyContent: "space-between",
   },
 });
