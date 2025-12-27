@@ -1,43 +1,55 @@
 import { View, Text, Pressable, Image, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import React from "react";
-import {widthPercentageToDP as wp, heightPercentageToDP as hp,} from "react-native-responsive-screen";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { useNavigation } from "@react-navigation/native";
 
 export default function Recipe({ categories, foods }) {
   const navigation = useNavigation();
 
   const renderItem = ({ item, index }) => (
-<ArticleCard item={item} index={index} navigation={navigation} />
+    <ArticleCard item={item} index={index} navigation={navigation} />
   );
 
   return (
     <View style={styles.container}>
-      <View testID="recipesDisplay">
-            
-      </View>
+      <FlatList
+        testID="recipesDisplay"
+        data={foods}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => item.idMeal || index.toString()}
+        contentContainerStyle={{ paddingBottom: hp(5) }}
+      />
     </View>
   );
 }
 
 const ArticleCard = ({ item, index, navigation }) => {
   return (
-    <View
-      style={[styles.cardContainer, { paddingLeft: 20, paddingRight: 15}]} testID="articleDisplay"
+    <Pressable
+      style={[styles.cardContainer, { paddingLeft: 20, paddingRight: 15 }]}
+      testID="articleDisplay"
+      onPress={() => navigation.navigate("RecipeDetailScreen", item)}
     >
-   
-    </View>
+      {item.strMealThumb && (
+        <Image source={{ uri: item.strMealThumb }} style={styles.articleImage} />
+      )}
+      <Text style={styles.articleText}>{item.strMeal}</Text>
+      <Text style={styles.articleDescription} numberOfLines={2}>
+        {item.strInstructions || "No description available."}
+      </Text>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: wp(4), // mx-4 equivalent
+    marginHorizontal: wp(4),
     marginTop: hp(2),
   },
   title: {
     fontSize: hp(3),
-    fontWeight: "600", // font-semibold
-    color: "#52525B", // text-neutral-600
+    fontWeight: "600",
+    color: "#52525B",
     marginBottom: hp(1.5),
   },
   loading: {
@@ -45,29 +57,35 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     justifyContent: "center",
-    marginBottom: hp(1.5),
-    flex: 1, // Allows cards to grow and fill space evenly
+    marginBottom: hp(2),
+    flex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: wp(2),
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
   },
   articleImage: {
     width: "100%",
-   
-    borderRadius: 35,
-    backgroundColor: "rgba(0, 0, 0, 0.05)", // bg-black/5
+    height: hp(25),
+    borderRadius: 20,
+    marginBottom: hp(1),
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
   },
   articleText: {
-    fontSize: hp(1.5),
-    fontWeight: "600", // font-semibold
-    color: "#52525B", // text-neutral-600
-    marginLeft: wp(2),
-    marginTop: hp(0.5),
+    fontSize: hp(2),
+    fontWeight: "600",
+    color: "#52525B",
+    marginBottom: hp(0.5),
   },
   articleDescription: {
-    fontSize: hp(1.2),
-    color: "#6B7280", // gray-500
-    marginLeft: wp(2),
-    marginTop: hp(0.5),
+    fontSize: hp(1.6),
+    color: "#6B7280",
   },
   row: {
-    justifyContent: "space-between", // Align columns evenly
+    justifyContent: "space-between",
   },
 });
