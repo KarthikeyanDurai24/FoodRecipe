@@ -85,4 +85,35 @@ export default function Categories({ categories, activeCategory, handleChangeCat
 const styles = StyleSheet.create({
   scrollContainer: {
     paddingHorizontal: 15,
-  }
+  },
+  categoryContainer: {
+    alignItems: "center",
+    marginRight: wp(4),
+  },
+  imageContainer: {
+    borderRadius: 9999,
+    padding: 6,
+  },
+  activeButton: {
+    backgroundColor: "#F59E0B",
+  },
+  inactiveButton: {
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
+  },
+  categoryImage: {
+    width: hp(6),
+    height: hp(6),
+    borderRadius: 9999,
+  },
+  categoryText: {
+    fontSize: hp(1.6),
+    color: "#52525B",
+    marginTop: hp(0.5),
+  },
+  myFoodButton: {
+    backgroundColor: "#4ADE80",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+  },
+});
