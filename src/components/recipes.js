@@ -1,9 +1,12 @@
-import { View, Text, Pressable, Image, StyleSheet, FlatList } from "react-native"; 
+import { View, Text, TouchableOpacity, Image, StyleSheet, FlatList } from "react-native";
 import React from "react";
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 import { useNavigation } from "@react-navigation/native";
 
-export default function Recipe({ categories, foods }) {
+export default function Recipe({ foods }) {
   const navigation = useNavigation();
 
   const renderItem = ({ item }) => (
@@ -17,6 +20,7 @@ export default function Recipe({ categories, foods }) {
         data={foods}
         renderItem={renderItem}
         keyExtractor={(item, index) => item.idMeal || index.toString()}
+        numColumns={2}
         contentContainerStyle={{ paddingBottom: hp(5) }}
         showsVerticalScrollIndicator={false}
       />
@@ -26,19 +30,42 @@ export default function Recipe({ categories, foods }) {
 
 const ArticleCard = ({ item, navigation }) => {
   return (
-    <Pressable
+    <TouchableOpacity
       style={styles.cardContainer}
       testID="articleDisplay"
-      onPress={() => navigation.navigate("RecipeDetail", item)}
+      onPress={() =>
+        navigation.navigate("RecipeDetail", {
+          idMeal: item.idMeal,
+          strMeal: item.strMeal,
+          strMealThumb: item.strMealThumb,
+
+          // ✅ HARD-CODED DETAILS
+          recipeCategory: "Home Style",
+          cookingTime: "30 mins",
+          servings: "2",
+          calories: "250 kcal",
+
+          ingredients: [
+            { ingredientName: "Salt", measure: "1 tsp" },
+            { ingredientName: "Oil", measure: "2 tbsp" },
+            { ingredientName: "Vegetables", measure: "1 cup" },
+            { ingredientName: "Spices", measure: "As needed" },
+          ],
+
+          recipeInstructions:
+            "1. Prepare all ingredients.\n" +
+            "2. Heat oil in a pan.\n" +
+            "3. Add vegetables and spices.\n" +
+            "4. Cook well and serve hot.",
+        })
+      }
     >
-      {item.strMealThumb && (
-        <Image source={{ uri: item.strMealThumb }} style={styles.articleImage} />
-      )}
+      <Image source={{ uri: item.strMealThumb }} style={styles.articleImage} />
       <Text style={styles.articleText}>{item.strMeal}</Text>
       <Text style={styles.articleDescription} numberOfLines={2}>
-        {item.strInstructions || "No description available."}
+        Simple and delicious homemade recipe.
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 
@@ -48,33 +75,26 @@ const styles = StyleSheet.create({
     marginTop: hp(2),
   },
   cardContainer: {
-    justifyContent: "center",
-    marginBottom: hp(2),
-    flex: 1,
+    width: (wp(100) - wp(12)) / 2,
+    margin: wp(1),
     backgroundColor: "#fff",
-    borderRadius: 20,
+    borderRadius: 15,
     padding: wp(2),
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   articleImage: {
     width: "100%",
-    height: hp(25),
-    borderRadius: 20,
+    height: hp(20),
+    borderRadius: 10,
     marginBottom: hp(1),
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
   },
   articleText: {
-    fontSize: hp(2),
+    fontSize: hp(1.8),
     fontWeight: "600",
     color: "#52525B",
-    marginBottom: hp(0.5),
   },
   articleDescription: {
-    fontSize: hp(1.6),
+    fontSize: hp(1.4),
     color: "#6B7280",
   },
 });
