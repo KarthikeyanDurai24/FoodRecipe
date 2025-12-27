@@ -1,15 +1,14 @@
-import {
+import { 
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   Image,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React from "react";
 import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -17,30 +16,12 @@ import {
 
 export default function MyRecipeScreen() {
   const navigation = useNavigation();
-  const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch recipes from AsyncStorage
-  useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        const storedRecipes = await AsyncStorage.getItem("customRecipes");
-        if (storedRecipes) {
-          setRecipes(JSON.parse(storedRecipes));
-        }
-      } catch (error) {
-        console.log("Error fetching recipes:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRecipes();
-  }, []);
+  const recipes = useSelector((state) => state.myFood.myRecipes); // get from store
 
   // Navigate to form to add new recipe
   const handleAddRecipe = () => {
     navigation.navigate("RecipesFormScreen", {
-      onrecipeEdited: handleRecipeSaved,
+      onRecipeSaved: () => {}, // optional callback
     });
   };
 
@@ -49,32 +30,12 @@ export default function MyRecipeScreen() {
     navigation.navigate("CustomRecipesScreen", { recipe });
   };
 
-  // Save updated recipes after add/edit
-  const handleRecipeSaved = async (newRecipe, index = null) => {
-    let updatedRecipes = [...recipes];
-    if (index !== null) {
-      updatedRecipes[index] = newRecipe;
-    } else {
-      updatedRecipes.push(newRecipe);
-    }
-    setRecipes(updatedRecipes);
-    await AsyncStorage.setItem("customRecipes", JSON.stringify(updatedRecipes));
-  };
-
-  // Delete recipe
-  const deleteRecipe = async (index) => {
-    let updatedRecipes = [...recipes];
-    updatedRecipes.splice(index, 1);
-    setRecipes(updatedRecipes);
-    await AsyncStorage.setItem("customRecipes", JSON.stringify(updatedRecipes));
-  };
-
   // Edit recipe
   const editRecipe = (recipe, index) => {
     navigation.navigate("RecipesFormScreen", {
       recipeToEdit: recipe,
       recipeIndex: index,
-      onrecipeEdited: handleRecipeSaved,
+      onRecipeSaved: () => {},
     });
   };
 
@@ -89,50 +50,40 @@ export default function MyRecipeScreen() {
         <Text style={styles.addButtonText}>Add New Recipe</Text>
       </TouchableOpacity>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#f59e0b" />
-      ) : (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          {recipes.length === 0 ? (
-            <Text style={styles.norecipesText}>No recipes added yet.</Text>
-          ) : (
-            recipes.map((recipe, index) => (
-              <View key={index} style={styles.recipeCard} testID="recipeCard">
-                <TouchableOpacity
-                  testID="handleRecipeBtn"
-                  onPress={() => handleRecipeClick(recipe)}
-                >
-                  {recipe.image && (
-                    <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-                  )}
-                  <Text style={styles.recipeTitle}>{recipe.title}</Text>
-                  <Text style={styles.recipeDescription} testID="recipeDescp">
-                    {recipe.description.length > 50
-                      ? recipe.description.substring(0, 50) + "..."
-                      : recipe.description}
-                  </Text>
-                </TouchableOpacity>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {recipes.length === 0 ? (
+          <Text style={styles.norecipesText}>No recipes added yet.</Text>
+        ) : (
+          recipes.map((recipe, index) => (
+            <View key={index} style={styles.recipeCard} testID="recipeCard">
+              <TouchableOpacity
+                testID="handleRecipeBtn"
+                onPress={() => handleRecipeClick(recipe)}
+              >
+                {recipe.image && (
+                  <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
+                )}
+                <Text style={styles.recipeTitle}>{recipe.title}</Text>
+                <Text style={styles.recipeDescription} testID="recipeDescp">
+                  {recipe.description.length > 50
+                    ? recipe.description.substring(0, 50) + "..."
+                    : recipe.description}
+                </Text>
+              </TouchableOpacity>
 
-                {/* Edit and Delete Buttons */}
-                <View style={styles.actionButtonsContainer} testID="editDeleteButtons">
-                  <TouchableOpacity
-                    style={styles.editButton}
-                    onPress={() => editRecipe(recipe, index)}
-                  >
-                    <Text style={styles.editButtonText}>Edit</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => deleteRecipe(index)}
-                  >
-                    <Text style={styles.deleteButtonText}>Delete</Text>
-                  </TouchableOpacity>
-                </View>
+              {/* Edit Button */}
+              <View style={styles.actionButtonsContainer} testID="editDeleteButtons">
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => editRecipe(recipe, index)}
+                >
+                  <Text style={styles.editButtonText}>Edit</Text>
+                </TouchableOpacity>
               </View>
-            ))
-          )}
-        </ScrollView>
-      )}
+            </View>
+          ))
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -206,7 +157,7 @@ const styles = StyleSheet.create({
   },
   actionButtonsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     marginTop: hp(1),
   },
   editButton: {
@@ -217,18 +168,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   editButtonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: hp(1.8),
-  },
-  deleteButton: {
-    backgroundColor: "#EF4444",
-    padding: wp(1),
-    borderRadius: 5,
-    width: wp(40),
-    alignItems: "center",
-  },
-  deleteButtonText: {
     color: "#fff",
     fontWeight: "600",
     fontSize: hp(1.8),
