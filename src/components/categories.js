@@ -1,3 +1,4 @@
+import React from "react";
 import {
   View,
   Text,
@@ -6,12 +7,8 @@ import {
   Image,
   StyleSheet,
 } from "react-native";
-import React from "react";
 import { useNavigation } from "@react-navigation/native";
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 export default function Categories({ categories, activeCategory, handleChangeCategory }) {
@@ -31,9 +28,7 @@ export default function Categories({ categories, activeCategory, handleChangeCat
         >
           <View style={[styles.imageContainer, styles.myFoodButton]}>
             <Image
-              source={{
-                uri: 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?q=80&w=1926&auto=format&fit=crop&ixlib=rb-4.0.3',
-              }}
+              source={{ uri: 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?q=80&w=1926&auto=format&fit=crop' }}
               style={styles.categoryImage}
             />
           </View>
@@ -47,9 +42,7 @@ export default function Categories({ categories, activeCategory, handleChangeCat
         >
           <View style={[styles.imageContainer, styles.myFoodButton]}>
             <Image
-              source={{
-                uri: 'https://images.unsplash.com/photo-1463740839922-2d3b7e426a56?q=80&w=1900&auto=format&fit=crop&ixlib=rb-4.0.3',
-              }}
+              source={{ uri: 'https://images.unsplash.com/photo-1463740839922-2d3b7e426a56?q=80&w=1900&auto=format&fit=crop' }}
               style={styles.categoryImage}
             />
           </View>
@@ -63,7 +56,7 @@ export default function Categories({ categories, activeCategory, handleChangeCat
 
           return (
             <TouchableOpacity
-              key={index}
+              key={cat.idCategory || index}
               onPress={() => handleChangeCategory(cat.strCategory)}
               style={styles.categoryContainer}
             >
